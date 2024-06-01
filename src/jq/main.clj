@@ -14,13 +14,13 @@
   (shutdown-agents)) ;; without this the process will hang when running without Babashka
 
 (trace/deftrace jq [query item]
-  (cond
-    (vector? item) (map #(jq query %) item)
-    :else (cond
-            (test/function? query) (query item)
-            (vector? query) (reduce (fn [acc k] (jq k acc)) item query)
-            (map? query) (into {} (map (fn [%] [(key %) (jq (val %) item)]) query))
-            :else (get-in item [query]))))
+  (if (vector? item)
+    (map #(jq query %) item)
+    (cond
+      (test/function? query) (query item)
+      (vector? query) (reduce (fn [acc k] (jq k acc)) item query)
+      (map? query) (into {} (map (fn [%] [(key %) (jq (val %) item)]) query))
+      :else (get-in item [query]))))
 
 (assert (test/is (= "value1" (jq :key1 {:key1 "value1"}))))
 (assert (test/is (= "value1" (jq [:key1] {:key1 "value1"}))))
