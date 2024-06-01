@@ -1,22 +1,13 @@
-(in-ns 'clojure.core)
-(when (System/getProperty "babashka.version") ;; when running with Babashka
-  (defn extend-type [t & specs]
-    (case (second t)
-      java.lang.AssertionError :noop
-      java.nio.charset.CoderMalfunctionError :noop
-      java.io.IOError :noop
-      java.lang.ThreadDeath :noop
-      java.lang.Throwable :noop
-      java.lang.Object :noop
-      nil :noop
-      (do (prn "ELSE") (clojure.core/extend-type t)))))
-
 (ns jq.main
   (:require
     [babashka.process :as proc]
     [babashka.json :as json]
-    [clojure.test :as test]
-    [clojure.tools.trace :as trace]))
+    [clojure.test :as test]))
+
+(if (System/getProperty "babashka.version") ;; when running with Babashka
+  (with-redefs [clojure.core/extend-type (fn [t & _] (prn "MOCKED extend-type" (second t)))]
+    (require '[clojure.tools.trace :as trace]))
+  (require '[clojure.tools.trace :as trace]))
 
 (defn -main []
   (println "main: TODO")
