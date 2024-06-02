@@ -22,8 +22,8 @@
       (map? query) (into {} (map (fn [%] [(key %) (jq (val %) item)]) query))
       :else (get-in item [query]))))
 
-(defmacro assert-eq [expected actual]
-  `(assert (test/is (= ~expected ~actual))))
+(defn assert-eq [expected actual]
+  (assert (test/is (= expected actual))))
 
 (assert-eq "value1" (jq :key1 {:key1 "value1"}))
 (assert-eq "value1" (jq [:key1] {:key1 "value1"}))
